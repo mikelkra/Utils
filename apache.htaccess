@@ -1,0 +1,119 @@
+#REFERENCE
+#https://perishablepress.com/protect-post-requests/
+#https://perishablepress.com/eight-ways-to-blacklist-with-apaches-mod_rewrite/
+
+
+#Forbid Cross Site Scripting in query
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{QUERY_STRING} ^.*(allow_url_include|auto_prepend_file).* [NC]
+RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+# require HTTP 1.1 for POST
+<IfModule mod_rewrite.c>
+   RewriteCond %{THE_REQUEST} ^POST(.*)HTTP/(0\.9|1\.0)$ [NC]
+   RewriteRule .* - [F,L]
+</IfModule>
+
+#Here we are evaluating the entire client-request string against a list of prohibited entities.
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{THE_REQUEST} ^.*(\\r|\\n|%0A|%0D).* [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+# whitelist POST requests
+<IfModule mod_rewrite.c>
+   RewriteCond %{REQUEST_METHOD} POST
+   RewriteCond %{REQUEST_URI} !/pathToFile/filenameHere.php [NC]
+   RewriteCond %{REQUEST_URI} !/pathToFile/filenameHere.php [NC]
+   RewriteCond %{REMOTE_ADDR} !127.0.0.1 
+   RewriteRule .* - [F,L]
+</IfModule>
+
+# allow POST based on referrer
+<IfModule mod_rewrite.c>
+   RewriteCond %{REQUEST_METHOD} POST
+   RewriteCond %{REQUEST_URI} /pathToFile/filenameHere.php
+   RewriteCond %{REQUEST_URI} /pathToFile/filenameHere.php
+   RewriteCond %{HTTP_REFERER} !(.*)konios.com(.*) [OR]
+   # RewriteCond %{HTTP_USER_AGENT} ^$
+   RewriteRule .* - [F,L]
+</IfModule>
+
+# deny unused request types
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ ServerSignature Off
+ RewriteCond %{REQUEST_METHOD} ^(delete|head|trace|track) [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+
+#Here we are evaluating the entire client-request string against a list of prohibited entities.
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{THE_REQUEST} ^.*(\\r|\\n|%0A|%0D).* [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+
+#prohibited character strings using the HTTP_REFERER variable
+#make your own word list here
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{HTTP_REFERER} ^(.*)(<|>|'|%0A|%0D|%27|%3C|%3E|%00).* [NC,OR]
+ RewriteCond %{HTTP_REFERER} ^http://(www\.)?.*(-|.)?adult(-|.).*$  [NC,OR]
+ RewriteCond %{HTTP_REFERER} ^http://(www\.)?.*(-|.)?poker(-|.).*$  [NC,OR]
+ RewriteCond %{HTTP_REFERER} ^http://(www\.)?.*(-|.)?guns(-|.).*$  [NC,OR]
+ RewriteCond %{HTTP_REFERER} ^http://(www\.)?.*(-|.)?sex(-|.).*$  [NC,OR]
+ RewriteCond %{HTTP_REFERER} ^http://(www\.)?.*(-|.)?hack(-|.).*$  [NC,OR]
+ RewriteCond %{HTTP_REFERER} ^http://(www\.)?.*(-|.)?drugs(-|.).*$  [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule> 
+
+
+#Protecting your site against malicious cookie exploits
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{HTTP_COOKIE} ^.*(<|>|'|%0A|%0D|%27|%3C|%3E|%00).* [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+#characters and strings that are blocked in the upcoming REQUEST_URI
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{REQUEST_URI} ^.*(,|;|:|<|>|">|"<|\.\.\.).*     [NC,OR]
+ RewriteCond %{REQUEST_URI} ^.*(\=|\@|\[|\]|\^|\`|\{|\}|\~).* [NC,OR]
+ RewriteCond %{REQUEST_URI} ^.*(\'|%0A|%0D|%27|%3C|%3E|%00).* [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+#deny access to any user-agent that includes any of the blacklisted character strings in its name
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{HTTP_USER_AGENT} ^$                                                              [OR]
+ RewriteCond %{HTTP_USER_AGENT} ^.*(<|>|'|%0A|%0D|%27|%3C|%3E|%00).*                            [NC,OR]
+ RewriteCond %{HTTP_USER_AGENT} ^.*(HTTrack|clshttp|archiver|loader|email|nikto|miner|python).* [NC,OR]
+ RewriteCond %{HTTP_USER_AGENT} ^.*(winhttp|libwww\-perl|curl|wget|harvest|scan|grab|extract).* [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+
+
+#keep our query strings clean
+<IfModule mod_rewrite.c>
+ RewriteEngine On
+ RewriteCond %{QUERY_STRING} ^.*(localhost|loopback|127\.0\.0\.1).*                                [NC,OR]
+ RewriteCond %{QUERY_STRING} ^.*(\.|\*|;|<|>|'|"|\)|%0A|%0D|%22|%27|%3C|%3E|%00).*                 [NC,OR]
+ RewriteCond %{QUERY_STRING} ^.*(md5|benchmark|union|select|insert|cast|set|declare|drop|update).* [NC]
+ RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+
+
+
+
+
+
